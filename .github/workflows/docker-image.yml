@@ -25,13 +25,27 @@ jobs:
       run: | # executing docker instruction (login). '|' indicates that there might be several instrucction (line by line)
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
+    - name: Git semantic version
+      uses: paulhatch/semantic-version@v4.0.2
+      with: # some parameters (those parameters are defined by action being used)
+        major_pattern: "major:" # when a commit starts like this indicates it is a major version
+        minor_pattern: "feat:" # when a commit starts like this indicates it is a minor version
+        format: "${major}.${minor}.${patch}-prerelease${increment}" # default format
+      id: version # using this id this step can be referenced by other step 
+
     - name: Docker build image
+      env:
+        NEW_VERSION: ${{steps.version.outputs.version}} # accessing to outputs of step withid 'version'
       run: |
-        docker build -t sergiobzg/docker-graphql:0.0.2 .
+        docker build -t sergiobzg/docker-graphql:$NEW_VERSION .
+        docker build -t sergiobzg/docker-graphql:latest .
         
     - name: Push docker image
+      env:
+        NEW_VERSION: ${{steps.version.outputs.version}} # accessing to outputs of step withid 'version'
       run: |
-        docker push sergiobzg/docker-graphql:0.0.2
+        docker push sergiobzg/docker-graphql:$NEW_VERSION
+        docker push sergiobzg/docker-graphql:latest
 
     # - name: Build the Docker image
     #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
