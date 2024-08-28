@@ -11,8 +11,20 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    # step by step
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Checkout code # name of the step
+      uses: actions/checkout@v4 # this step uses this action (take all content in this repo)
+      with: # some parameters
+        fetch-dept: 0 # indicates that this checkout goes very deep into commit history
+
+    - name: Dcoker login
+      env: # define env variables for this step
+        DOCKER_USER: ${{secrets.DOCKER_USER}} # using secrets
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}} 
+      run: | # executing docker instruction (login). '|' indicates that there might be several instrucction (line by line)
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+        
+    # - name: Build the Docker image
+    #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
