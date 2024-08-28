@@ -18,13 +18,20 @@ jobs:
       with: # some parameters
         fetch-dept: 0 # indicates that this checkout goes very deep into commit history
 
-    - name: Dcoker login
+    - name: Docker login
       env: # define env variables for this step
         DOCKER_USER: ${{secrets.DOCKER_USER}} # using secrets
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}} 
       run: | # executing docker instruction (login). '|' indicates that there might be several instrucction (line by line)
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
+    - name: Docker build image
+      run: |
+        docker build -t sergiobzg/docker-graphql:0.0.2 .
         
+    - name: Push docker image
+      run: |
+        docker push sergiobzg/docker-graphql:0.0.2
+
     # - name: Build the Docker image
     #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
